@@ -1,16 +1,23 @@
 """Template tags and filters for Zinnia"""
+import re
 from hashlib import md5
-from urllib import urlencode
 from datetime import datetime
+try:
+    from urllib.parse import urlencode
+except ImportError:  # Python 2
+    from urllib import urlencode
 
 from django.db.models import Q
 from django.db.models import Count
 from django.conf import settings
 from django.utils import timezone
 from django.template import Library
+from django.utils.encoding import smart_text
+from django.utils.safestring import mark_safe
+from django.utils.html import conditional_escape
+from django.template.defaultfilters import stringfilter
 from django.contrib.comments.models import CommentFlag
 from django.contrib.contenttypes.models import ContentType
-from django.utils.encoding import smart_unicode
 from django.contrib.comments import get_model as get_comment_model
 
 from tagging.models import Tag
@@ -34,6 +41,8 @@ VECTORS = None
 VECTORS_FACTORY = lambda: VectorBuilder(Entry.published.all(),
                                         ['title', 'excerpt', 'content'])
 CACHE_ENTRIES_RELATED = {}
+
+WIDONT_REGEXP = re.compile(r'\s+(\S+\s*)$')
 
 
 @register.inclusion_tag('zinnia/tags/dummy.html', takes_context=True)
@@ -130,7 +139,8 @@ def get_similar_entries(context, number=5,
                 if score:
                     entry_related[entry] = score
 
-        related = sorted(entry_related.items(), key=lambda(k, v): (v, k))
+        related = sorted(entry_related.items(),
+                         key=lambda k_v: (k_v[1], k_v[0]))
         return [rel[0] for rel in related]
 
     object_id = context['object'].pk
@@ -198,8 +208,8 @@ def get_calendar_entries(context, year=None, month=None,
 @register.inclusion_tag('zinnia/tags/dummy.html')
 def get_recent_comments(number=5, template='zinnia/tags/recent_comments.html'):
     """Return the most recent comments"""
-    # Using map(smart_unicode... fix bug related to issue #8554
-    entry_published_pks = map(smart_unicode,
+    # Using map(smart_text... fix bug related to issue #8554
+    entry_published_pks = map(smart_text,
                               Entry.published.values_list('id', flat=True))
     content_type = ContentType.objects.get_for_model(Entry)
 
@@ -218,7 +228,7 @@ def get_recent_comments(number=5, template='zinnia/tags/recent_comments.html'):
 def get_recent_linkbacks(number=5,
                          template='zinnia/tags/recent_linkbacks.html'):
     """Return the most recent linkbacks"""
-    entry_published_pks = map(smart_unicode,
+    entry_published_pks = map(smart_text,
                               Entry.published.values_list('id', flat=True))
     content_type = ContentType.objects.get_for_model(Entry)
 
@@ -322,6 +332,20 @@ def get_tag_cloud(context, steps=6, min_count=None,
     return {'template': template,
             'tags': calculate_cloud(tags, steps),
             'context_tag': context.get('tag')}
+
+
+@register.filter(needs_autoescape=True)
+@stringfilter
+def widont(value, autoescape=None):
+    """Adds an HTML non-breaking space between the final
+    two words of the string to avoid "widowed" words"""
+    esc = autoescape and conditional_escape or (lambda x: x)
+
+    def replace(matchobj):
+        return u'&nbsp;%s' % matchobj.group(1)
+
+    value = WIDONT_REGEXP.sub(replace, esc(smart_text(value)))
+    return mark_safe(value)
 
 
 @register.inclusion_tag('zinnia/tags/dummy.html')

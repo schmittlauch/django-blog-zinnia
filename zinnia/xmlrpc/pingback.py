@@ -1,9 +1,17 @@
 """XML-RPC methods of Zinnia Pingback"""
-from urllib2 import urlopen
-from urllib2 import URLError
-from urllib2 import HTTPError
-from urlparse import urlsplit
+try:
+    from urllib.error import URLError
+    from urllib.error import HTTPError
+    from urllib.request import urlopen
+    from urllib.parse import urlsplit
+except ImportError:  # Python 2
+    from urllib2 import urlopen
+    from urllib2 import URLError
+    from urllib2 import HTTPError
+    from urlparse import urlsplit
 
+from django.utils import six
+from django.utils import timezone
 from django.contrib import comments
 from django.utils.html import strip_tags
 from django.contrib.sites.models import Site
@@ -12,14 +20,14 @@ from django.core.urlresolvers import Resolver404
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
+from bs4 import BeautifulSoup
+from django_xmlrpc.decorators import xmlrpc_func
+
 from zinnia.models.entry import Entry
 from zinnia.flags import PINGBACK
 from zinnia.flags import get_user_flagger
 from zinnia.signals import pingback_was_posted
 from zinnia.settings import PINGBACK_CONTENT_LENGTH
-
-from BeautifulSoup import BeautifulSoup
-from django_xmlrpc.decorators import xmlrpc_func
 
 UNDEFINED_ERROR = 0
 SOURCE_DOES_NOT_EXIST = 16
@@ -33,7 +41,7 @@ def generate_pingback_content(soup, target, max_length, trunc_char='...'):
     """Generate a description text for the pingback"""
     link = soup.find('a', href=target)
 
-    content = strip_tags(unicode(link.findParent()))
+    content = strip_tags(six.text_type(link.findParent()))
     index = content.index(link.string)
 
     if len(content) > max_length:
@@ -104,7 +112,8 @@ def pingback_ping(source, target):
         pingback, created = comments.get_model().objects.get_or_create(
             content_type=ContentType.objects.get_for_model(Entry),
             object_pk=entry.pk, user_url=source, site=site,
-            defaults={'comment': description, 'user_name': title})
+            defaults={'comment': description, 'user_name': title,
+                      'submit_date': timezone.now()})
         if created:
             pingback.flags.create(user=get_user_flagger(), flag=PINGBACK)
             pingback_was_posted.send(pingback.__class__,

@@ -11,18 +11,20 @@ Dependencies
 
 Make sure to install these packages prior to installation :
 
-* `Python 2.x`_ >= 2.6.5
+* `Python`_ >= 2.6.5
 * `Django`_ >= 1.5
-* `PIL`_ >= 1.1.6
+* `PIL`_ >= 1.1.6 or `Pillow`_ >= 2.0.0
 * `django-mptt`_ >= 0.5.1 < 0.6
 * `django-tagging`_ >= 0.3.1
-* `BeautifulSoup`_ >= 3.2.0
+* `beautifulsoup4`_ >= 4.1.3
 
-The packages below are optionnal but needed for run the full test suite.
+The packages below are optionnal but needed for run the full test suite or
+migrate the database.
 
 * `pytz`_
+* `South`_ >= 0.7.6
 * `pyparsing`_ >= 1.5.5 < 2.0.0
-* `django-xmlrpc`_ >= 0.1.3
+* `django-xmlrpc`_ >= 0.1.5
 
 Note that all the dependencies will be resolved if you install
 Zinnia with :program:`pip` or :program:`easy_install`, excepting Django.
@@ -61,7 +63,8 @@ Applications
 
 .. highlight:: python
 
-Then register :mod:`zinnia`, and these following applications in the
+Assuming that you have an already existing Django project, register
+:mod:`zinnia`, and these following applications in the
 :setting:`INSTALLED_APPS` section of your project's settings. ::
 
   INSTALLED_APPS = (
@@ -150,17 +153,19 @@ project directory to sync the models with the database. ::
 
   $ python manage.py syncdb
 
-If you are using South to manage your database, you will have to do the
+If you are using `South`_ to manage your database, you will have to do the
 following. ::
 
   $ python manage.py syncdb --migrate
 
-.. _`Python 2.x`: http://www.python.org/
+.. _`Python`: http://www.python.org/
 .. _`Django`: https://www.djangoproject.com/
 .. _`PIL`: http://www.pythonware.com/products/pil/
+.. _`Pillow`: http://python-imaging.github.io/Pillow/
 .. _`django-mptt`: https://github.com/django-mptt/django-mptt/
 .. _`django-tagging`: https://code.google.com/p/django-tagging/
-.. _`BeautifulSoup`: http://www.crummy.com/software/BeautifulSoup/
+.. _`beautifulsoup4`: http://www.crummy.com/software/BeautifulSoup/
 .. _`pytz`: http://pytz.sourceforge.net/
 .. _`pyparsing`: http://pyparsing.wikispaces.com/
 .. _`django-xmlrpc`: https://github.com/Fantomas42/django-xmlrpc
+.. _`South`: http://south.aeracode.org/

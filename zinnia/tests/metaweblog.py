@@ -1,12 +1,18 @@
 """Test cases for Zinnia's MetaWeblog API"""
-from xmlrpclib import Binary
-from xmlrpclib import Fault
-from xmlrpclib import ServerProxy
+try:
+    from xmlrpc.client import Binary
+    from xmlrpc.client import Fault
+    from xmlrpc.client import ServerProxy
+except ImportError:  # Python 2
+    from xmlrpclib import Binary
+    from xmlrpclib import Fault
+    from xmlrpclib import ServerProxy
 from tempfile import TemporaryFile
 
 from django.test import TestCase
 from django.contrib.sites.models import Site
 from django.core.files.storage import default_storage
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from zinnia.models.entry import Entry
 from zinnia.models.author import Author
@@ -20,6 +26,7 @@ from zinnia.xmlrpc.metaweblog import post_structure
 from zinnia.tests.utils import TestTransport
 
 
+@skipIfCustomUser
 class MetaWeblogTestCase(TestCase):
     """Test cases for MetaWeblog"""
     urls = 'zinnia.tests.urls'

@@ -1,17 +1,25 @@
 """Test cases for Zinnia's PingBack API"""
-import cStringIO
-from urlparse import urlsplit
-from urllib2 import HTTPError
-from xmlrpclib import ServerProxy
+try:
+    from io import StringIO
+    from urllib.error import HTTPError
+    from urllib.parse import urlsplit
+    from xmlrpc.client import ServerProxy
+except ImportError:  # Python 2
+    from cStringIO import StringIO
+    from urllib2 import HTTPError
+    from urlparse import urlsplit
+    from xmlrpclib import ServerProxy
 
 from django.test import TestCase
+from django.utils import timezone
 from django.contrib import comments
 from django.contrib.sites.models import Site
 from django.test.utils import restore_template_loaders
 from django.test.utils import setup_test_template_loader
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 from zinnia.models.entry import Entry
 from zinnia.models.author import Author
@@ -26,6 +34,7 @@ from zinnia.signals import connect_discussion_signals
 from zinnia.signals import disconnect_discussion_signals
 
 
+@skipIfCustomUser
 class PingBackTestCase(TestCase):
     """Test cases for pingbacks"""
     urls = 'zinnia.tests.urls'
@@ -37,7 +46,7 @@ class PingBackTestCase(TestCase):
         if not netloc:
             raise
         if self.site.domain == netloc:
-            response = cStringIO.StringIO(self.client.get(url).content)
+            response = StringIO(self.client.get(url).content)
             return response
         raise HTTPError(url, 404, 'unavailable url', {}, None)
 
@@ -229,7 +238,8 @@ class PingBackTestCase(TestCase):
         comment = comments.get_model().objects.create(
             content_type=ContentType.objects.get_for_model(Entry),
             object_pk=self.first_entry.pk,
-            site=self.site, comment='Test pingback',
+            site=self.site, submit_date=timezone.now(),
+            comment='Test pingback',
             user_url='http://example.com/blog/1/',
             user_name='Test pingback')
         comment.flags.create(user=self.author, flag=PINGBACK)

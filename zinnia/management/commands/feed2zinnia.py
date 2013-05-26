@@ -1,9 +1,12 @@
 """Feed to Zinnia command module"""
 import os
 import sys
-from urllib2 import urlopen
 from datetime import datetime
 from optparse import make_option
+try:
+    from urllib.request import urlopen
+except ImportError:  # Python 2
+    from urllib2 import urlopen
 
 from django.conf import settings
 from django.utils import timezone
@@ -92,7 +95,7 @@ class Command(LabelCommand):
         """Import entries"""
         for feed_entry in feed_entries:
             self.write_out('> %s... ' % feed_entry.title)
-            if feed_entry.get('publised_parsed'):
+            if feed_entry.get('published_parsed'):
                 creation_date = datetime(*feed_entry.published_parsed[:6])
                 if settings.USE_TZ:
                     creation_date = timezone.make_aware(

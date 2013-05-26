@@ -1,4 +1,6 @@
 """Template mixins for Zinnia views"""
+from __future__ import unicode_literals
+
 from django.utils import timezone
 from django.core.exceptions import ImproperlyConfigured
 from django.views.generic.base import TemplateResponseMixin
@@ -14,7 +16,7 @@ class EntryQuerysetTemplateResponseMixin(TemplateResponseMixin):
         """Return the model type for templates"""
         if self.model_type is None:
             raise ImproperlyConfigured(
-                u"%s requires either a definition of "
+                "%s requires either a definition of "
                 "'model_type' or an implementation of 'get_model_type()'" %
                 self.__class__.__name__)
         return self.model_type
@@ -23,7 +25,7 @@ class EntryQuerysetTemplateResponseMixin(TemplateResponseMixin):
         """Return the model name for templates"""
         if self.model_name is None:
             raise ImproperlyConfigured(
-                u"%s requires either a definition of "
+                "%s requires either a definition of "
                 "'model_name' or an implementation of 'get_model_name()'" %
                 self.__class__.__name__)
         return self.model_name
@@ -137,5 +139,8 @@ class EntryQuerysetArchiveTodayTemplateResponseMixin(
                       'week': self.week_format,
                       'day': '%d'}
         if self.today is None:
-            self.today = timezone.localtime(timezone.now()).date()
+            today = timezone.now()
+            if timezone.is_aware(today):
+                today = timezone.localtime(today)
+            self.today = today
         return self.today.strftime(parts_dict[part])

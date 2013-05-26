@@ -1,7 +1,11 @@
 """Views for Zinnia trackback"""
+from __future__ import unicode_literals
+
+from django.utils import timezone
 from django.contrib import comments
 from django.contrib.sites.models import Site
 from django.shortcuts import get_object_or_404
+from django.views.generic.base import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import HttpResponsePermanentRedirect
@@ -11,12 +15,11 @@ from zinnia.models.entry import Entry
 from zinnia.flags import TRACKBACK
 from zinnia.flags import get_user_flagger
 from zinnia.signals import trackback_was_posted
-from zinnia.views.mixins.mimetypes import TemplateMimeTypeView
 
 
-class EntryTrackback(TemplateMimeTypeView):
+class EntryTrackback(TemplateView):
     """View for handling trackbacks on the entries"""
-    mimetype = 'text/xml'
+    content_type = 'text/xml'
     template_name = 'zinnia/entry_trackback.xml'
 
     @method_decorator(csrf_exempt)
@@ -47,7 +50,7 @@ class EntryTrackback(TemplateMimeTypeView):
 
         if not entry.trackbacks_are_open:
             return self.render_to_response(
-                {'error': u'Trackback is not enabled for %s' % entry.title})
+                {'error': 'Trackback is not enabled for %s' % entry.title})
 
         title = request.POST.get('title') or url
         excerpt = request.POST.get('excerpt') or title
@@ -56,7 +59,8 @@ class EntryTrackback(TemplateMimeTypeView):
         trackback, created = comments.get_model().objects.get_or_create(
             content_type=ContentType.objects.get_for_model(Entry),
             object_pk=entry.pk, site=site, user_url=url,
-            user_name=blog_name, defaults={'comment': excerpt})
+            user_name=blog_name, defaults={'comment': excerpt,
+                                           'submit_date': timezone.now()})
         if created:
             trackback.flags.create(user=get_user_flagger(), flag=TRACKBACK)
             trackback_was_posted.send(trackback.__class__,
@@ -64,5 +68,5 @@ class EntryTrackback(TemplateMimeTypeView):
                                       entry=entry)
         else:
             return self.render_to_response(
-                {'error': u'Trackback is already registered'})
+                {'error': 'Trackback is already registered'})
         return self.render_to_response({})

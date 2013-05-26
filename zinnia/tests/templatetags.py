@@ -1,14 +1,16 @@
 """Test cases for Zinnia's templatetags"""
 from django.test import TestCase
+from django.utils import timezone
 from django.template import Context
 from django.template import Template
 from django.template import TemplateSyntaxError
 from django.contrib import comments
 from django.core.paginator import Paginator
 from django.core.urlresolvers import reverse
-from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.comments.models import CommentFlag
+from django.contrib.auth.tests.utils import skipIfCustomUser
+
 from tagging.models import Tag
 
 from zinnia.models.entry import Entry
@@ -18,6 +20,7 @@ from zinnia.managers import DRAFT
 from zinnia.managers import PUBLISHED
 from zinnia.flags import PINGBACK, TRACKBACK
 from zinnia.tests.utils import datetime
+from zinnia.templatetags.zinnia_tags import widont
 from zinnia.templatetags.zinnia_tags import get_authors
 from zinnia.templatetags.zinnia_tags import get_gravatar
 from zinnia.templatetags.zinnia_tags import get_tag_cloud
@@ -94,6 +97,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(context['template'], 'custom_template.html')
         self.assertEquals(context['context_category'], category)
 
+    @skipIfCustomUser
     def test_get_authors(self):
         source_context = Context({})
         with self.assertNumQueries(1):
@@ -346,6 +350,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(context['previous_month'], datetime(2010, 1, 1))
         self.assertEquals(context['next_month'], None)
 
+    @skipIfCustomUser
     def test_get_recent_comments(self):
         site = Site.objects.get_current()
         with self.assertNumQueries(1):
@@ -356,7 +361,7 @@ class TemplateTagsTestCase(TestCase):
 
         comment_1 = comments.get_model().objects.create(
             comment='My Comment 1', site=site,
-            content_object=self.entry)
+            content_object=self.entry, submit_date=timezone.now())
         with self.assertNumQueries(1):
             context = get_recent_comments(3, 'custom_template.html')
         self.assertEquals(len(context['comments']), 0)
@@ -369,11 +374,11 @@ class TemplateTagsTestCase(TestCase):
             self.assertEquals(context['comments'][0].content_object,
                               self.entry)
 
-        author = User.objects.create_user(username='webmaster',
-                                          email='webmaster@example.com')
+        author = Author.objects.create_user(username='webmaster',
+                                            email='webmaster@example.com')
         comment_2 = comments.get_model().objects.create(
             comment='My Comment 2', site=site,
-            content_object=self.entry)
+            content_object=self.entry, submit_date=timezone.now())
         comment_2.flags.create(user=author,
                                flag=CommentFlag.MODERATOR_APPROVAL)
         with self.assertNumQueries(3):
@@ -385,9 +390,10 @@ class TemplateTagsTestCase(TestCase):
             self.assertEquals(context['comments'][1].content_object,
                               self.entry)
 
+    @skipIfCustomUser
     def test_get_recent_linkbacks(self):
-        user = User.objects.create_user(username='webmaster',
-                                        email='webmaster@example.com')
+        user = Author.objects.create_user(username='webmaster',
+                                          email='webmaster@example.com')
         site = Site.objects.get_current()
         with self.assertNumQueries(1):
             context = get_recent_linkbacks()
@@ -397,7 +403,7 @@ class TemplateTagsTestCase(TestCase):
 
         linkback_1 = comments.get_model().objects.create(
             comment='My Linkback 1', site=site,
-            content_object=self.entry)
+            content_object=self.entry, submit_date=timezone.now())
         linkback_1.flags.create(user=user, flag=PINGBACK)
         with self.assertNumQueries(1):
             context = get_recent_linkbacks(3, 'custom_template.html')
@@ -413,7 +419,7 @@ class TemplateTagsTestCase(TestCase):
 
         linkback_2 = comments.get_model().objects.create(
             comment='My Linkback 2', site=site,
-            content_object=self.entry)
+            content_object=self.entry, submit_date=timezone.now())
         linkback_2.flags.create(user=user, flag=TRACKBACK)
         with self.assertNumQueries(3):
             context = get_recent_linkbacks()
@@ -524,6 +530,7 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(context['middle'], [])
         self.assertEquals(context['end'], [5, 6, 7])
 
+    @skipIfCustomUser
     def test_zinnia_breadcrumbs(self):
         class FakeRequest(object):
             def __init__(self, path):
@@ -593,9 +600,8 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(len(context['breadcrumbs']), 3)
         check_only_last_have_no_url(context['breadcrumbs'])
 
-        User.objects.create_user(username='webmaster',
-                                 email='webmaster@example.com')
-        author = Author.objects.get(username='webmaster')
+        author = Author.objects.create_user(username='webmaster',
+                                            email='webmaster@example.com')
         source_context = Context(
             {'request': FakeRequest(author.get_absolute_url()),
              'object': author})
@@ -705,6 +711,29 @@ class TemplateTagsTestCase(TestCase):
         self.assertEquals(context['template'], 'custom_template.html')
         self.assertEquals(context['context_tag'], tag)
 
+    def test_widont(self):
+        self.assertEquals(
+            widont('Word'), 'Word')
+        self.assertEquals(
+            widont('A complete string'),
+            'A complete&nbsp;string')
+        self.assertEquals(
+            widont('A complete\tstring'),
+            'A complete&nbsp;string')
+        self.assertEquals(
+            widont('A  complete  string'),
+            'A  complete&nbsp;string')
+        self.assertEquals(
+            widont('A complete string with trailing spaces  '),
+            'A complete string with trailing&nbsp;spaces  ')
+        self.assertEquals(
+            widont('A complete string with <markup>', autoescape=False),
+            'A complete string with&nbsp;<markup>')
+        self.assertEquals(
+            widont('A complete string with <markup>', autoescape=True),
+            'A complete string with&nbsp;&lt;markup&gt;')
+
+    @skipIfCustomUser
     def test_zinnia_statistics(self):
         with self.assertNumQueries(9):
             context = zinnia_statistics()
@@ -727,8 +756,10 @@ class TemplateTagsTestCase(TestCase):
         Category.objects.create(title='Category 1', slug='category-1')
         author = Author.objects.create_user(username='webmaster',
                                             email='webmaster@example.com')
-        comments.get_model().objects.create(comment='My Comment 1', site=site,
-                                            content_object=self.entry)
+        comments.get_model().objects.create(
+            comment='My Comment 1', site=site,
+            content_object=self.entry,
+            submit_date=timezone.now())
         self.entry.authors.add(author)
         self.publish_entry()
 

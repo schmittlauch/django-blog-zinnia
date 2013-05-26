@@ -1,7 +1,11 @@
 """Test cases for Zinnia's feeds"""
-from urlparse import urljoin
+try:
+    from urllib.parse import urljoin
+except ImportError:  # Python 2
+    from urlparse import urljoin
 
 from django.test import TestCase
+from django.utils import timezone
 from django.contrib import comments
 from django.contrib.sites.models import Site
 from django.utils.translation import activate
@@ -10,6 +14,7 @@ from django.utils.feedgenerator import Atom1Feed
 from django.utils.feedgenerator import DefaultFeed
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from tagging.models import Tag
 
@@ -34,6 +39,7 @@ from zinnia.feeds import EntryTrackbacks
 from zinnia.feeds import LatestDiscussions
 
 
+@skipIfCustomUser
 class ZinniaFeedsTestCase(TestCase):
     """Test cases for the Feed classes provided"""
     urls = 'zinnia.tests.urls'
@@ -66,20 +72,26 @@ class ZinniaFeedsTestCase(TestCase):
         return entry
 
     def create_discussions(self, entry):
-        comment = comments.get_model().objects.create(comment='My Comment',
-                                                      user=self.author,
-                                                      user_name='admin',
-                                                      content_object=entry,
-                                                      site=self.site)
-        pingback = comments.get_model().objects.create(comment='My Pingback',
-                                                       user=self.author,
-                                                       content_object=entry,
-                                                       site=self.site)
+        comment = comments.get_model().objects.create(
+            comment='My Comment',
+            user=self.author,
+            user_name='admin',
+            content_object=entry,
+            site=self.site,
+            submit_date=timezone.now())
+        pingback = comments.get_model().objects.create(
+            comment='My Pingback',
+            user=self.author,
+            content_object=entry,
+            site=self.site,
+            submit_date=timezone.now())
         pingback.flags.create(user=self.author, flag=PINGBACK)
-        trackback = comments.get_model().objects.create(comment='My Trackback',
-                                                        user=self.author,
-                                                        content_object=entry,
-                                                        site=self.site)
+        trackback = comments.get_model().objects.create(
+            comment='My Trackback',
+            user=self.author,
+            content_object=entry,
+            site=self.site,
+            submit_date=timezone.now())
         trackback.flags.create(user=self.author, flag=TRACKBACK)
         return [comment, pingback, trackback]
 

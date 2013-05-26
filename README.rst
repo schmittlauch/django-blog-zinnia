@@ -1,6 +1,8 @@
-==================
-Django Blog Zinnia
-==================
+====================================================
+Django Blog Zinnia |travis-master| |coverage-master|
+====================================================
+
+|latest-version| |downloads|
 
 Simple yet powerful and really extendable application for managing a blog
 within your Django Web site.
@@ -62,7 +64,6 @@ or you can visit these websites who use Zinnia.
 * `Tryolabs`_.
 * `AR.Drone Best of User Videos`_.
 * `Professional Web Studio`_.
-* `mixedCase`_.
 * `brainbreach`_.
 * `Mauro Bianchi`_.
 * `Sergey Miracle`_.
@@ -80,10 +81,23 @@ More information and help available at these URLs :
 * `Code repository`_.
 * `Documentation`_.
 * `Jenkins CI server`_.
+* `Travis CI server`_.
+* `Coverage report`_.
 * Discussions and help at `Google Group`_.
 * For reporting a bug use `Github Issues`_.
 
-
+.. |travis-master| image:: https://travis-ci.org/Fantomas42/django-blog-zinnia.png?branch=master
+   :alt: Build Status - master branch
+   :target: http://travis-ci.org/Fantomas42/django-blog-zinnia
+.. |coverage-master| image:: https://coveralls.io/repos/Fantomas42/django-blog-zinnia/badge.png?branch=master
+   :alt: Coverage of the code
+   :target: https://coveralls.io/Fantomas42/django-blog-zinnia
+.. |latest-version| image:: https://pypip.in/v/django-blog-zinnia/badge.png
+   :alt: Latest version on Pypi
+   :target: https://crate.io/packages/django-blog-zinnia/
+.. |downloads| image:: https://pypip.in/d/django-blog-zinnia/badge.png
+   :alt: Downloads from Pypi
+   :target: https://crate.io/packages/django-blog-zinnia/
 .. _`Sitemaps`: http://docs.django-blog-zinnia.com/en/latest/getting-started/configuration.html#module-zinnia.sitemaps
 .. _`Advanced search engine`: http://docs.django-blog-zinnia.com/en/latest/topics/search_engines.html
 .. _`Custom templates for various contents`: http://docs.django-blog-zinnia.com/en/latest/getting-started/configuration.html#templates-for-entries
@@ -110,7 +124,6 @@ More information and help available at these URLs :
 .. _`Fantomas' side`: http://fantomas.willbreak.it/blog/
 .. _`Mobile version`: http://m.fantomas.willbreak.it/blog/
 .. _`Professional Web Studio`: http://www.professionalwebstudio.com/en/weblog/
-.. _`mixedCase`: http://www.mixedcase.nl/articles/
 .. _`Tryolabs`: http://www.tryolabs.com/Blog/
 .. _`brainbreach`: http://brainbreach.com/
 .. _`Mauro Bianchi`: http://www.maurobianchi.it/
@@ -122,5 +135,7 @@ More information and help available at these URLs :
 .. _`Code repository`: https://github.com/Fantomas42/django-blog-zinnia
 .. _`Documentation`: http://docs.django-blog-zinnia.com/
 .. _`Jenkins CI server`: https://jenkins.shiningpanda.com/django-blog-zinnia/
+.. _`Travis CI server`: http://travis-ci.org/Fantomas42/django-blog-zinnia
+.. _`Coverage report`: https://coveralls.io/r/Fantomas42/django-blog-zinnia
 .. _`Google Group`: http://groups.google.com/group/django-blog-zinnia/
 .. _`Github Issues`: https://github.com/Fantomas42/django-blog-zinnia/issues/

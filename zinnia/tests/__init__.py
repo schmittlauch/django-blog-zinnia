@@ -5,7 +5,8 @@ from django.conf import settings
 
 from zinnia.tests.entry import EntryTestCase
 from zinnia.tests.entry import EntryHtmlContentTestCase
-from zinnia.tests.entry import EntryGetBaseModelTestCase
+from zinnia.tests.entry import EntryAbsoluteUrlTestCase
+from zinnia.tests.models_bases import LoadModelClassTestCase
 from zinnia.tests.signals import SignalsTestCase
 from zinnia.tests.category import CategoryTestCase
 from zinnia.tests.admin import EntryAdminTestCase
@@ -42,7 +43,7 @@ def suite():
     loader = TestLoader()
 
     test_cases = (ManagersTestCase, EntryTestCase,
-                  EntryGetBaseModelTestCase, SignalsTestCase,
+                  LoadModelClassTestCase, SignalsTestCase,
                   EntryHtmlContentTestCase, CategoryTestCase,
                   ZinniaViewsTestCase, ZinniaFeedsTestCase,
                   ZinniaSitemapsTestCase, ComparisonTestCase,
@@ -54,7 +55,7 @@ def suite():
                   MixinTestCase, LongEnoughTestCase,
                   AuthorTestCase, FlagsTestCase,
                   AuthorListFilterTestCase, CategoryListFilterTestCase,
-                  TranslatedURLsTestCase)
+                  TranslatedURLsTestCase, EntryAbsoluteUrlTestCase)
 
     if 'django_xmlrpc' in settings.INSTALLED_APPS:
         test_cases += (PingBackTestCase, MetaWeblogTestCase)

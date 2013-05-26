@@ -4,13 +4,13 @@ from datetime import date
 from django.test import TestCase
 from django.contrib.sites.models import Site
 from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth.tests.utils import skipIfCustomUser
 
 from zinnia.models.entry import Entry
 from zinnia.models.author import Author
 from zinnia.models.category import Category
 from zinnia.managers import PUBLISHED
 from zinnia.tests.utils import datetime
-from zinnia.views.mixins.mimetypes import MimeTypeMixin
 from zinnia.views.mixins.archives import PreviousNextPublishedMixin
 from zinnia.views.mixins.callable_queryset import CallableQuerysetMixin
 from zinnia.views.mixins.prefetch_related import PrefetchRelatedMixin
@@ -35,15 +35,6 @@ class MixinTestCase(TestCase):
         instance.queryset = qs
         self.assertEquals(instance.get_queryset(),
                           [])
-
-    def test_mimetype_mixin(self):
-        instance = MimeTypeMixin()
-        self.assertRaises(ImproperlyConfigured,
-                          instance.get_mimetype)
-
-        instance.mimetype = 'mimetype'
-        self.assertEquals(instance.get_mimetype(),
-                          'mimetype')
 
     def test_entry_queryset_template_response_mixin(self):
         instance = EntryQuerysetTemplateResponseMixin()
@@ -296,6 +287,7 @@ class MixinTestCase(TestCase):
         self.assertRaises(ImproperlyConfigured,
                           instance.get_queryset)
 
+    @skipIfCustomUser
     def test_prefetch_categories_authors_mixin(self):
         author = Author.objects.create_user(username='author',
                                             email='author@example.com')
