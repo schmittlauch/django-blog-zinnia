@@ -27,6 +27,16 @@ MARKUP_LANGUAGE = getattr(settings, 'ZINNIA_MARKUP_LANGUAGE', 'html')
 
 MARKDOWN_EXTENSIONS = getattr(settings, 'ZINNIA_MARKDOWN_EXTENSIONS', '')
 
+RESTRUCTUREDTEXT_SETTINGS = getattr(
+    settings, 'ZINNIA_RESTRUCTUREDTEXT_SETTINGS', {})
+
+PREVIEW_SPLITTERS = getattr(settings, 'ZINNIA_PREVIEW_SPLITTERS',
+                            ['<!-- more -->', '<!--more-->'])
+
+PREVIEW_MAX_WORDS = getattr(settings, 'ZINNIA_PREVIEW_MAX_WORDS', 55)
+
+PREVIEW_MORE_STRING = getattr(settings, 'ZINNIA_PREVIEW_MORE_STRING', ' ...')
+
 WYSIWYG_MARKUP_MAPPING = {
     'textile': 'markitup',
     'markdown': 'markitup',

@@ -12,17 +12,16 @@ from django.contrib.comments.models import CommentFlag
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import python_2_unicode_compatible
 
-from django.contrib.markup.templatetags.markup import markdown
-from django.contrib.markup.templatetags.markup import textile
-from django.contrib.markup.templatetags.markup import restructuredtext
-
 from tagging.fields import TagField
 from tagging.utils import parse_tag_input
 
+from zinnia.markups import textile
+from zinnia.markups import markdown
+from zinnia.markups import restructuredtext
+from zinnia.preview import HTMLPreview
 from zinnia.flags import PINGBACK, TRACKBACK
 from zinnia.settings import UPLOAD_TO
 from zinnia.settings import MARKUP_LANGUAGE
-from zinnia.settings import MARKDOWN_EXTENSIONS
 from zinnia.settings import ENTRY_DETAIL_TEMPLATES
 from zinnia.settings import ENTRY_CONTENT_TEMPLATES
 from zinnia.settings import AUTO_CLOSE_COMMENTS_AFTER
@@ -198,7 +197,7 @@ class ContentEntry(models.Model):
         Returns the "content" field formatted in HTML.
         """
         if MARKUP_LANGUAGE == 'markdown':
-            return markdown(self.content, MARKDOWN_EXTENSIONS)
+            return markdown(self.content)
         elif MARKUP_LANGUAGE == 'textile':
             return textile(self.content)
         elif MARKUP_LANGUAGE == 'restructuredtext':
@@ -206,6 +205,13 @@ class ContentEntry(models.Model):
         elif not '</p>' in self.content:
             return linebreaks(self.content)
         return self.content
+
+    @property
+    def html_preview(self):
+        """
+        Returns a preview of the "content" field formmated in HTML.
+        """
+        return HTMLPreview(self.html_content)
 
     @property
     def word_count(self):

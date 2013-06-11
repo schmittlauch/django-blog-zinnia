@@ -61,11 +61,11 @@
     {% endblock %}
     {% block entry-content %}
     <div class="entry-content">
-      {{ object_content }}
+      {{ object_content|safe }}
     </div>
     {% endblock %}
     {% block continue-reading %}
-    {% if continue_reading %}
+    {% if continue_reading and object_content.has_more %}
     <p class="continue-reading">
       <a href="{{ object.get_absolute_url }}"
          title="{% blocktrans with object=object.title %}Continue reading {{ object }}{% endblocktrans %}"

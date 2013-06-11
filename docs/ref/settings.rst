@@ -94,10 +94,21 @@ ZINNIA_MARKDOWN_EXTENSIONS
 --------------------------
 **Default value:** ``''`` (Empty string)
 
-Extensions names to be used for rendering the entries in MarkDown. Example:
-::
+Extensions names coma separated to be used for rendering the entries in
+MarkDown. Example: ::
 
   ZINNIA_MARKDOWN_EXTENSIONS = 'extension1_name,extension2_name...'
+
+.. setting:: ZINNIA_RESTRUCTUREDTEXT_SETTINGS
+
+ZINNIA_RESTRUCTUREDTEXT_SETTINGS
+--------------------------------
+**Default value:** ``{}`` (Empty dict)
+
+A dictionary containing settings for the RestructuredText markup
+processing. See the Docutils restructuredtext `writer settings docs
+<http://docutils.sourceforge.net/docs/user/config.html#html4css1-writer>`_
+for details.
 
 .. setting:: ZINNIA_WYSIWYG
 
@@ -125,6 +136,40 @@ This setting can also be used for disabling the WYSIWYG
 functionnality. Example: ::
 
   ZINNIA_WYSIWYG = None
+
+.. _settings-preview:
+
+Preview
+=======
+
+.. setting:: ZINNIA_PREVIEW_SPLITTERS
+
+ZINNIA_PREVIEW_SPLITTERS
+------------------------
+
+**Default value:** ``['<!-- more -->', '<!--more-->'])``
+
+List of split markers used to make a preview of the entry's content if
+present in the HTML. All the content before the marker will be used to
+build the preview of the entry.
+
+.. setting:: ZINNIA_PREVIEW_MAX_WORDS
+
+ZINNIA_PREVIEW_MAX_WORDS
+------------------------
+
+**Default value:** ``55``
+
+Number of words used to build the entry's preview if no split markers are
+found.
+
+ZINNIA_PREVIEW_MORE_STRING
+--------------------------
+
+**Default value:** ``' ...'``
+
+The string to be appended to the content when a truncation for the preview
+is done.
 
 .. _settings-views:
 

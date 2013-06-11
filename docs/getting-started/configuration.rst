@@ -154,6 +154,26 @@ register the Mollom spam checking protection with this setting: ::
   MOLLOM_PUBLIC_KEY = 'your public key'
   MOLLOM_PRIVATE_KEY = 'your private key'
 
+.. _zinnia-pinging:
+
+Pinging
+=======
+
+By default Zinnia is configured to ping the directories and the external
+urls embedded in your entries when a new entry is published.
+
+If you want to completly remove these features, simply set these settings
+in your project's configuration: ::
+
+  ZINNIA_PING_EXTERNAL_URLS = False
+  ZINNIA_SAVE_PING_DIRECTORIES = False
+
+You can also edit the list of the directories to be pinged by using this
+setting: ::
+
+  ZINNIA_PING_DIRECTORIES = ('http://ping.directory.com/',
+                             'http://pong.directory.com/')
+
 .. _zinnia-bitly:
 
 Bit.ly
@@ -202,7 +222,6 @@ the shortened URL of your entry.
 Django-CMS
 ==========
 
-
 If you use `django-CMS`_, Zinnia can be integrated into your pages,
 thanks to the plugin system.
 
@@ -235,14 +254,18 @@ an über coder knowing more than 42 programming languages, you have the
 possibility to use a custom markup language for editing the entries.
 
 Currently **MarkDown**, **Textile** and **reStructuredText** are supported,
-so if you want to use one of these languages, simply set this
-variable as appropriate in your project's settings. ::
+so if you want to use one of these languages, first set this
+setting as appropriate in your project's settings. ::
 
   ZINNIA_MARKUP_LANGUAGE = 'restructuredtext'
 
 Note that the name of the language must be in lowercase.
 
-More informations about the dependencies in :mod:`django.contrib.markup`.
+Then install the corresponding library to your needs:
+
+* ``textile`` -- requires `Textile`_ >= 2.1.5
+* ``markdown`` -- requires `Markdown`_ >= 2.3.1
+* ``restructuredtext`` -- requires `Docutils`_ >= 0.10
 
 .. _zinnia-xmlrpc:
 
@@ -290,5 +313,8 @@ Insert something like this in your project's urls.py: ::
 .. _`django-CMS`: http://www.django-cms.org/
 .. _`django-tinymce`: https://github.com/aljosa/django-tinymce
 .. _`installation instructions`: http://django-tinymce.readthedocs.org/en/latest/installation.html
+.. _`Textile`: https://pypi.python.org/pypi/textile
+.. _`Markdown`: http://pypi.python.org/pypi/Markdown
+.. _`Docutils`: http://docutils.sf.net/
 .. _`django-xmlrpc`: http://pypi.python.org/pypi/django-xmlrpc/
 .. _`MetaWeblog API`: http://www.xmlrpc.com/metaWeblogApi
